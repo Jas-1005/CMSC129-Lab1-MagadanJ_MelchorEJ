@@ -1,39 +1,59 @@
-// START HERE
+//START HERE
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
 const connectDB = require("./config/mongoDB");
-const createItemModel = require("./models/item");
+const createItemModel = require("./models/Item");
 const createMessageRoutes = require("./routes/messages");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 
 const startServer = async () => {
-  try {
-    const connection = await connectDB();
-    const Item = createItemModel(connection);
-    const messageRoutes = createMessageRoutes(Item);
-    app.use("/api/messages", messageRoutes);
+  const db = await connectDB();
+  const Item = createItemModel(db);
 
-    app.get("/", (_, res) => {
-      res.json({ ok: true, message: "Welcome to the Anon API" });
-    });
+  app.use("/api/messages", createMessageRoutes(Item));
 
-  } catch (error) {
-    console.error("Failed to start server:", error);
-    process.exit(1);
-  }
+  app.get("/", (_, res) => {
+    res.json({ ok: true, message: "Anon API running" });
+  });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 };
 
 startServer();
+
+
+//CODE SAMPLE FROM MONGODB 
+/**
+ * const { MongoClient, ServerApiVersion } = require('mongodb');
+const uri = "mongodb+srv://anonadmin:0RUhDgctccp5MYCl@anon-primary.oowwkjy.mongodb.net/?appName=anon-primary";
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+async function run() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    await client.db("admin").command({ ping: 1 });
+    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+}
+run().catch(console.dir);
+ */

@@ -2,17 +2,11 @@ const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
-    const primary = await mongoose.createConnection
-     (process.env.MONGODB_URI).asPromise(); {
-      console.log("Primary MongoDB Atlas connected")
-    };
-    const backup = await mongoose.createConnection
-    (process.env.MONGODB_URI).asPromise(); {
-      console.log("Backup MongoDB Atlas connected")
-    }
-    return {primary, backup};
+    const connection = await mongoose.createConnection(process.env.MONGODB_URI).asPromise();
+    console.log("MongoDB connected");
+    return connection;
   } catch (error) {
-    console.error("MongoDB Atlas connection error:", error);
+    console.error("MongoDB connection error:", error.message);
     process.exit(1);
   }
 };
